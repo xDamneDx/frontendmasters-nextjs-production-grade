@@ -5,8 +5,10 @@ import path from "path";
 import matter from "gray-matter";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { majorScale, Pane, Heading, Spinner } from "evergreen-ui";
+import renderToString from "next-mdx-remote/render-to-string";
 import { Post } from "../../types";
+import { posts } from "../../content";
+import { majorScale, Pane, Heading, Spinner } from "evergreen-ui";
 
 // Components:
 import Container from "../../components/container";
@@ -65,7 +67,7 @@ export function getStaticPaths() {
 
   return {
     paths: slugs.map((s) => ({ params: { slug: s.slug } })),
-    fallback: false,
+    fallback: true,
   };
 }
 
@@ -74,4 +76,31 @@ export function getStaticPaths() {
  * then the the correct post for the matching path
  * Posts can come from the fs or our CMS
  */
+
+export async function getStaticProps({ params }) {
+  let post;
+
+  try {
+    const filesPath = path.join(process.cwd(), "posts", `${params.slug}.mdx`);
+    post = fs.readFileSync(filesPath, "utf-8");
+  } catch {
+    console.log("Should match here", params.slug);
+    const cmsPosts = posts.published.map((p) => {
+      return matter(p);
+    });
+    const match = cmsPosts.find((p) => p.data.slug === params.slug);
+    post = match.content;
+  }
+
+  const { data } = matter(post);
+  const mdxSource = await renderToString(post, { scope: data });
+
+  return {
+    props: {
+      source: mdxSource,
+      frontMatter: data,
+    },
+  };
+}
+
 export default BlogPost;
