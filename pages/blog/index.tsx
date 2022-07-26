@@ -4,11 +4,13 @@ import matter from "gray-matter";
 import path from "path";
 import fs from "fs";
 import orderby from "lodash.orderby";
+import { posts as postsFromCMS } from "../../content";
+import { data } from "browserslist";
+
+// Components:
 import Container from "../../components/container";
 import HomeNav from "../../components/homeNav";
 import PostPreview from "../../components/postPreview";
-import { posts as postsFromCMS } from "../../content";
-import { data } from "browserslist";
 
 const Blog = ({ posts }) => {
   return (
@@ -40,8 +42,10 @@ export default Blog;
  * fs and our CMS
  */
 
-export function getStaticProps() {
-  const cmsPosts = postsFromCMS.published.map((post) => {
+export function getStaticProps(ctx) {
+  const cmsPosts = (
+    ctx.preview ? postsFromCMS.draft : postsFromCMS.published
+  ).map((post) => {
     const { data } = matter(post);
     return data;
   });
