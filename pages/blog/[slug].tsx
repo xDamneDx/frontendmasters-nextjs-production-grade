@@ -79,12 +79,12 @@ export function getStaticPaths() {
 
 export async function getStaticProps({ params, preview }) {
   let post;
-
+  // Is the slug for a file system post or cms post:
   try {
     const filesPath = path.join(process.cwd(), "posts", `${params.slug}.mdx`);
     post = fs.readFileSync(filesPath, "utf-8");
   } catch {
-    console.log("Should match here", params.slug);
+    // Check that cookie:
     const cmsPosts = (preview ? posts.draft : posts.published).map((p) => {
       return matter(p);
     });

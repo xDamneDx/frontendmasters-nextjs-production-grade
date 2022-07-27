@@ -43,6 +43,7 @@ export default Blog;
  */
 
 export function getStaticProps(ctx) {
+  // Check that preview boolean:
   const cmsPosts = (
     ctx.preview ? postsFromCMS.draft : postsFromCMS.published
   ).map((post) => {
