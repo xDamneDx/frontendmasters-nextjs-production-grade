@@ -2,6 +2,7 @@ import React, { FC, useState } from "react";
 import { Pane, Dialog, majorScale } from "evergreen-ui";
 import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/client";
+import { UserSession } from "../../types";
 
 // Components:
 import Logo from "../../components/logo";
@@ -11,6 +12,9 @@ import User from "../../components/user";
 import FolderPane from "../../components/folderPane";
 import DocPane from "../../components/docPane";
 import NewFolderDialog from "../../components/newFolderDialog";
+
+// db:
+import { folder, doc, connectToDB } from "../../db";
 
 const App: FC<{
   folders?: any[];
@@ -77,7 +81,7 @@ const App: FC<{
           <NewFolderButton onClick={() => setIsShown(true)} />
         </Pane>
         <Pane>
-          <FolderList folders={[{ _id: 1, name: "hello" }]} />{" "}
+          <FolderList folders={folders} />{" "}
         </Pane>
       </Pane>
       <Pane
@@ -103,20 +107,42 @@ App.defaultProps = {
   folders: [],
 };
 
-export async function getServerSideProps(ctx) {
-  const session = await getSession(ctx);
+export async function getServerSideProps(context) {
+  const session: { user: UserSession } = await getSession(context);
+  // Not signed in:
+  if (!session || !session.user) {
+    return { props: {} };
+  }
+
+  const props: any = { session };
+  const { db } = await connectToDB();
+  const folders = await folder.getFolders(db, session.user.id);
+  props.folders = folders;
+
+  if (context.params.id) {
+    const activeFolder = folders.find((f) => f._id === context.params.id[0]);
+    const activeDocs = await doc.getDocsByFolder(db, activeFolder._id);
+    props.activeFolder = activeFolder;
+    props.activeDocs = activeDocs;
+
+    const activeDocId = context.params.id[1];
+
+    if (activeDocId) {
+      props.activeDoc = await doc.getOneDoc(db, activeDocId);
+    }
+  }
 
   return {
-    props: { session },
+    props,
   };
 }
 
 /**
  * Catch all handler. Must handle all different page
  * states.
- * 1. Folders - none selected
- * 2. Folders => Folder selected
- * 3. Folders => Folder selected => Document selected
+ * 1. Folders - none selected  /app
+ * 2. Folders => Folder selected  /app/1
+ * 3. Folders => Folder selected => Document selected  /app/1/2
  *
  * An unauth user should not be able to access this page.
  *
