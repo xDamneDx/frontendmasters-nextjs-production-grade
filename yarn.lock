@@ -8594,10 +8594,10 @@
   "resolved" "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   "version" "0.0.6"
 
-"typeorm@^0.2.24", "typeorm@^0.2.29":
-  "integrity" "sha512-ih1vrTe3gEAGKRcWlcsTRxTL7gNjacQE498wVGuJ3ZRujtMqPZlbAWuC7xDzWCRjQnkZYNwZQeG9UgKfxSHB5g=="
-  "resolved" "https://registry.npmjs.org/typeorm/-/typeorm-0.2.29.tgz"
-  "version" "0.2.29"
+"typeorm@^0.2.24", "typeorm@0.2.28":
+  "integrity" "sha512-BTtUBGwsFzODvHY+AlWL9pvJ2uEj8qpHwmo03z43RvZkG8BAryQJQ3lZ7HlGvI9IQU8y1IYGWe97HsVr8kXB9g=="
+  "resolved" "https://registry.npmjs.org/typeorm/-/typeorm-0.2.28.tgz"
+  "version" "0.2.28"
   dependencies:
     "@sqltools/formatter" "1.2.2"
     "app-root-path" "^3.0.0"
