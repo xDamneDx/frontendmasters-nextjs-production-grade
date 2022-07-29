@@ -25,6 +25,21 @@ const App: FC<{
   const router = useRouter();
   const [session, loading] = useSession();
   const [newFolderIsShown, setIsShown] = useState(false);
+  const [allFolders, setFolders] = useState(folders || []);
+
+  const handleNewFolder = async (name: string) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/folder/`, {
+      method: "POST",
+      body: JSON.stringify({ name }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const { data } = await res.json();
+    // Update local state:
+    setFolders((state) => [...state, data]);
+  };
 
   if (loading) {
     return null;
@@ -81,7 +96,7 @@ const App: FC<{
           <NewFolderButton onClick={() => setIsShown(true)} />
         </Pane>
         <Pane>
-          <FolderList folders={folders} />{" "}
+          <FolderList folders={allFolders} />{" "}
         </Pane>
       </Pane>
       <Pane
@@ -97,7 +112,7 @@ const App: FC<{
       <NewFolderDialog
         close={() => setIsShown(false)}
         isShown={newFolderIsShown}
-        onNewFolder={() => {}}
+        onNewFolder={handleNewFolder}
       />
     </Pane>
   );
